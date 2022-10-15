@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Looking at my profile, one may believe two things about me - 1. I love large cities like Chicago and New York 2. I'm only interested in health data set.   I haven't been to either city since I was a child; however, both have wealth of open source data.  The city of Chicago has their [portal](https://data.cityofchicago.org/).  I just discovered New York City's [NYCOpenData](https://opendata.cityofnewyork.us/). This site also has an API, so I plan to practice in the near future.  As for the second question, it's more likely because I can find more data on the subject of health and crime.  
 
-This data comes from the NYC OpenData website.  It is on the leading causes of death in New York City by sex and ethnicity since 2007.  The cause of death is derived from the NYC death certificate which is issued for every death that occurs in the city"
+This data comes from the NYC OpenData website.  It is on the leading causes of death in New York City by sex and ethnicity since 2007.  The cause of death is derived from the NYC death certificate which is issued for every death that occurs in the city".
 
 After I complete this project, I will be completing it again in python.  Currently, I am in school and R is the language of choice.  But I realize, it is important to know python. I've completed a program on the DataCamp platform...practice...practice...
 
@@ -27,10 +27,12 @@ After I complete this project, I will be completing it again in python.  Current
 # Ask
 This is not a formal project, so there is not a detailed business task (or statement).  I will use the data set to explore, complete some summary statistics and visualizations.
 
+I will be looking at- what was the cause of death for women in NYC?  What about the top 10 causes? Does race change the top cause for women?  Basically, is it different for Black, White, Hispanic, and Asian women?
+
 
 # Prepare
 
-This csv file is named `New_York_City_leading_Causes_of_Death`.  It's in a long format with a shape of 1,272 x 7 where each row is a cause of death.  It is contained on the NYC OpenData platform where it is updated annually by Department of Health and Mental Hygiene (DOHMH).  It was last updated on February 8, 2022.
+This csv file is named `New_York_City_leading_Causes_of_Death`.  It's in a long format with a shape of 1,272 x 7 where each row is a cause of death.  It is contained on the NYC OpenData platform where it is updated annually by Department of Health and Mental Hygiene (DOHMH).  It was last updated on February 8, 2022. The data is from 2007 to 2019.
 
 The csv has the following columns (variables):  
 Year                     Year of Death                                    year
@@ -47,9 +49,10 @@ The data and metadata can be found [here.](https://data.cityofnewyork.us/Health/
 
 After downloading the file, I renamed it to preserve the original file.  During the data cleaning (process), any changes to the data will be saved under a file named ChangeLog.doc   
 
+
 # Process
 
-```{r library, warning=FALSE}
+```{r library, warning=FALSE, message=FALSE}
 library(tidyverse)
 ```
 
@@ -58,6 +61,20 @@ First, we will read in the csv file.
 ```{r}
 nycCauses <- read.csv("New_York_City_Leading_Causes_of_Death_pmb.csv")
 ```
+
+```{r}
+#nycCauses$ï..Year <- trimws(nycCauses$ï..Year, which = c("both"))
+
+```
+
+
+
+
+```{r}
+head(nycCauses)
+```
+
+
 
 Next, the structure of the file.  
 ```{r}
@@ -68,8 +85,161 @@ As mentioned above, everything is a character format except for year including d
 
 I think we should make the following data changes:
 
-  * Year changes INT to DATE
   * Leading Cause, Sex, and Race.Ethnicity from CHR to FACTOR
-  * deaths from CHR to INT
+  * Leading Cause, Sex, and Race.Ethnicity from CHR to FACTOR
   * death rates and age adjusted deaths rates from CHR to DOUBLE
+  * Change ï..Year to year (column name)
   
+
+Rename column ï..Year
+```{r}
+nycCauses <- nycCauses %>% rename(year=ï..Year)
+```
+
+  
+Before changing data types, let's look for any NAs.
+(Something to note - I don't understand when I run the code, R does not see the NA.  When I trick further down and re run this chunk of code, it does return the correct information. There is missing information 138 Deaths, 453 Death.Rate, and 453 Age. Adjusted.Death.Rate. I will research this problem.)
+```{r}
+colSums(is.na(nycCauses))
+```
+
+
+```{r}
+#colnames(nycCauses)[colSums(is.na(nycCauses)) >0]
+```
+
+Hmm, that is interesting.  I was not expecting to see NAs.  so, the data set is somewhat small. I can look it using excel. We have the following issues:
+  *  Descendants with  "Other" as race do not have Death rate and age adjusted death rate. I think that is the 453 above.
+  *  The remaining 138 descendants with missing deaths are a combination of  with "other Race" and "Not Stated" as race.
+  
+Based on the above, I will create a data set descendants with missing deaths removed.  We will name that data frame as `nycCauses_Deaths`.  I will try to complete most of the analysis with data set. Recall the original data set is 1272x7.  The set is 1134 x 7.  The difference is 138.
+
+
+```{r}
+nycCauses_Deaths <- nycCauses %>% drop_na(Deaths)
+```
+
+Change Leading causes, sex, and race to factors
+```{r}
+
+# update to factors
+nycCauses_Deaths$Leading.Cause = factor(nycCauses_Deaths$Leading.Cause)
+nycCauses_Deaths$Sex = factor(nycCauses_Deaths$Sex)
+nycCauses_Deaths$Race.Ethnicity = factor(nycCauses_Deaths$Race.Ethnicity)
+# update to integer and double
+nycCauses_Deaths$Deaths = as.integer(nycCauses_Deaths$Deaths)
+nycCauses_Deaths$Death.Rate = as.double(nycCauses_Deaths$Death.Rate)
+nycCauses_Deaths$Age.Adjusted.Death.Rate = as.double(nycCauses_Deaths$Age.Adjusted.Death.Rate)
+
+nycCauses$Age.Adjusted.Death.Rate = as.double(nycCauses$Age.Adjusted.Death.Rate)
+nycCauses$Deaths = as.integer(nycCauses$Deaths)
+nycCauses$Death.Rate = as.double(nycCauses$Death.Rate)
+```
+
+We will also create a second data set names`nycCause_noNA`, where we remove all NA. This will leave us with a 819x7 data set.
+
+```{r}
+nycCauses_noNA   <- nycCauses_Deaths %>% drop_na(Death.Rate, Age.Adjusted.Death.Rate)
+```
+
+Let's confirm our changes
+```{r}
+str(nycCauses_Deaths)
+```
+
+
+```{r}
+nycCauses_Deaths %>% select(Deaths, Death.Rate, Age.Adjusted.Death.Rate) %>% summary()
+#nycCauses  %>% summary()
+```
+
+
+```{r}
+nycCauses_noNA %>% select(Deaths, Death.Rate, Age.Adjusted.Death.Rate) %>% summary()
+```
+
+Mow our data sets seems to be clean.  As mentioned above we will use nycCauses_Deaths and nycCauses_noNA. 
+
+# Analyze
+
+```{r}
+
+```
+
+
+```{r}
+nycCauses_Deaths %>% 
+  group_by(year, Leading.Cause, Sex) %>% 
+  summarise(mean = mean(Deaths)) %>%
+  filter(year == 2019 & Sex == "Female" & grepl('Heart|Diabetes', Leading.Cause))
+  
+```
+
+We can determine top 10 deaths for female in 2019.  The number one cause of death was Diseases of Heart (I00-I09, I11, I13, I20-I51) an average of 1266 women dying.  A distance second was Malignant Neoplasms (Cancer: C00-C97)  with 898 cases. 
+```{r}
+nycCauses_Deaths %>% 
+      group_by(year, Leading.Cause, Sex) %>% 
+      summarise(average = mean(Deaths)) %>%
+      filter(year == 2019 & Sex == "Female") %>%
+      arrange(desc(average)) %>%
+      select(Leading.Cause, average) %>%
+      head(10)
+
+```
+We will analyze similar results for women by race.
+```{r}
+nycCauses_Deaths %>% 
+      group_by(year, Race.Ethnicity,Leading.Cause) %>% 
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Non-Hispanic Black') %>%
+      summarise(average = mean(Deaths)) %>%
+      arrange(desc(average)) %>%
+      select(Race.Ethnicity, Leading.Cause, average) 
+
+```
+
+For Black, the number one cause is Diseases of Heart with average 2483 deaths.  This is followed by Cancer and Diabetes.  Since I don't know what causes are in All Other Causes, I'm going to skip it when looking at all races.
+
+```{r}
+nycCauses_Deaths %>% 
+      group_by(year, Race.Ethnicity,Leading.Cause) %>% 
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Non-Hispanic White') %>%
+      summarise(average = mean(Deaths)) %>%
+      arrange(desc(average)) %>%
+      select(Race.Ethnicity, Leading.Cause, average) 
+
+```
+For Non-Hispanic White, the number one cause is Diseases of Heart with average 4001 deaths. This is followed by Cancer and Chronic Lower Respiratory Diseases. 
+
+```{r}
+nycCauses_Deaths %>% 
+      group_by(year, Race.Ethnicity,Leading.Cause) %>% 
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Hispanic') %>%
+      summarise(average = mean(Deaths)) %>%
+      arrange(desc(average)) %>%
+      select(Race.Ethnicity, Leading.Cause, average) 
+
+```
+For Hispanic, the number one cause is Diseases of Heart with average 1574 deaths. This is followed by Cancer and Cerebrovascular Disease. 
+
+```{r}
+nycCauses_Deaths %>% 
+      group_by(year, Race.Ethnicity,Leading.Cause) %>% 
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Asian and Pacific Islander') %>%
+      summarise(average = mean(Deaths)) %>%
+      arrange(desc(average)) %>%
+      select(Race.Ethnicity, Leading.Cause, average) 
+
+```
+For Asian and Pacific Islander, the number one cause if Diseases of Heart with average 623 deaths. This is followed by Cancer and Cerebrovascular Disease. 
+
+
+# Share
+I will use the same data to plot 
+
+```{r}
+
+  
+```
+
+
+# Conclusion
