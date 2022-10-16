@@ -126,7 +126,7 @@ nycCauses_Deaths$Age.Adjusted.Death.Rate = as.double(nycCauses_Deaths$Age.Adjust
 
 ```
 
-We will also create a second data set named`nycCause_noNA`, where we remove all NAs whihc will have 819 observations.
+We will also create a second data set named`nycCause_noNA`, where we remove all NAs which will have 819 observations.
 
 ```{r}
 nycCauses_noNA   <- nycCauses_Deaths %>% drop_na(Death.Rate, Age.Adjusted.Death.Rate)
@@ -172,7 +172,25 @@ levels(nycCauses_noNA$Sex)[levels(nycCauses_noNA$Sex)=='F'] <- 'Female'
 ```{r}
 unique(nycCauses_Deaths[["year"]])
 ```
+
 We notice that we are missing data from 2015 - 2018. I'm not sure why we are missing data.  The data dictionary in the `Cause_of_Death_121412.csv` file states years from 2007 - 2016 and the title gives the impression we will have data from 2007.  We have an discrepancy, but we will carry on.
+
+
+Look at factors for ethnicity.
+```{r}
+unique(nycCauses_Deaths[["Race.Ethnicity"]])
+```
+As a best practice, it is good to check all levels of features with factors.  Above we have both Black Non-Hispanic and Non-Hispanic Black and White Non-Hispanic and Non-Hispanic White,  We need to address this so it will not effect our work.
+
+```{r}
+levels(nycCauses_Deaths$Race.Ethnicity)[levels(nycCauses_Deaths$Race.Ethnicity)=='Non-Hispanic Black'] <- 'Black Non-Hispanic'
+levels(nycCauses_Deaths$Race.Ethnicity)[levels(nycCauses_Deaths$Race.Ethnicity)=='Non-Hispanic White'] <- 'White Non-Hispanic'
+
+
+levels(nycCauses_noNA$Race.Ethnicity)[levels(nycCauses_noNA$Race.Ethnicity)=='Non-Hispanic Black'] <- 'Black Non-Hispanic'
+levels(nycCauses_noNA$Race.Ethnicity)[levels(nycCauses_noNA$Race.Ethnicity)=='Non-Hispanic White'] <- 'White Non-Hispanic'
+```
+
 
 Check to confirm our changes
 
@@ -180,7 +198,6 @@ Check to confirm our changes
 unique(nycCauses_Deaths[["Sex"]])
 ```
 
-Look at factors for ethnicity.
 ```{r}
 unique(nycCauses_Deaths[["Race.Ethnicity"]])
 ```
@@ -219,7 +236,7 @@ Question 3 - Question two leads us to ask, Is heart disease the leading cause of
 ```{r}
 nycCauses_Deaths %>% 
       group_by(year, Race.Ethnicity,Leading.Cause) %>% 
-      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Non-Hispanic Black') %>%
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Black Non-Hispanic') %>%
       summarise(average = mean(Deaths)) %>%
       arrange(desc(average)) %>%
       select(Race.Ethnicity, Leading.Cause, average) 
@@ -230,7 +247,7 @@ The top cause of death for Black females in 2019 was Diseases of Heart (I00-I09,
 ```{r}
 nycCauses_Deaths %>% 
       group_by(year, Race.Ethnicity,Leading.Cause) %>% 
-      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Non-Hispanic White') %>%
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'White Non-Hispanic') %>%
       summarise(average = mean(Deaths)) %>%
       arrange(desc(average)) %>%
       select(Race.Ethnicity, Leading.Cause, average) 

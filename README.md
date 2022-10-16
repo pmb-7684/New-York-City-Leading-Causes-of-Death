@@ -189,7 +189,7 @@ nycCauses_Deaths$Age.Adjusted.Death.Rate = as.double(nycCauses_Deaths$Age.Adjust
 ```
 
 We will also create a second data set named`nycCause_noNA`, where we
-remove all NAs whihc will have 819 observations.
+remove all NAs which will have 819 observations.
 
 ``` r
 nycCauses_noNA   <- nycCauses_Deaths %>% drop_na(Death.Rate, Age.Adjusted.Death.Rate)
@@ -295,15 +295,6 @@ are missing data. The data dictionary in the `Cause_of_Death_121412.csv`
 file states years from 2007 - 2016 and the title gives the impression we
 will have data from 2007. We have an discrepancy, but we will carry on.
 
-Check to confirm our changes
-
-``` r
-unique(nycCauses_Deaths[["Sex"]])
-```
-
-    ## [1] Male   Female
-    ## Levels: Female Male
-
 Look at factors for ethnicity.
 
 ``` r
@@ -314,6 +305,37 @@ unique(nycCauses_Deaths[["Race.Ethnicity"]])
     ## [4] Non-Hispanic Black         Other Race/ Ethnicity      Not Stated/Unknown        
     ## [7] White Non-Hispanic         Black Non-Hispanic        
     ## 8 Levels: Asian and Pacific Islander Black Non-Hispanic Hispanic Non-Hispanic Black ... White Non-Hispanic
+
+As a best practice, it is good to check all levels of features with
+factors. Above we have both Black Non-Hispanic and Non-Hispanic Black
+and White Non-Hispanic and Non-Hispanic White, We need to address this
+so it will not effect our work.
+
+``` r
+levels(nycCauses_Deaths$Race.Ethnicity)[levels(nycCauses_Deaths$Race.Ethnicity)=='Non-Hispanic Black'] <- 'Black Non-Hispanic'
+levels(nycCauses_Deaths$Race.Ethnicity)[levels(nycCauses_Deaths$Race.Ethnicity)=='Non-Hispanic White'] <- 'White Non-Hispanic'
+
+
+levels(nycCauses_noNA$Race.Ethnicity)[levels(nycCauses_noNA$Race.Ethnicity)=='Non-Hispanic Black'] <- 'Black Non-Hispanic'
+levels(nycCauses_noNA$Race.Ethnicity)[levels(nycCauses_noNA$Race.Ethnicity)=='Non-Hispanic White'] <- 'White Non-Hispanic'
+```
+
+Check to confirm our changes
+
+``` r
+unique(nycCauses_Deaths[["Sex"]])
+```
+
+    ## [1] Male   Female
+    ## Levels: Female Male
+
+``` r
+unique(nycCauses_Deaths[["Race.Ethnicity"]])
+```
+
+    ## [1] Hispanic                   Asian and Pacific Islander White Non-Hispanic        
+    ## [4] Black Non-Hispanic         Other Race/ Ethnicity      Not Stated/Unknown        
+    ## 6 Levels: Asian and Pacific Islander Black Non-Hispanic Hispanic White Non-Hispanic ... Other Race/ Ethnicity
 
 Now our data sets seem to be clean. As mentioned above we will use
 nycCauses_Deaths and nycCauses_noNA. We will mainly use
@@ -379,7 +401,7 @@ Islander and Other Race.
 ``` r
 nycCauses_Deaths %>% 
       group_by(year, Race.Ethnicity,Leading.Cause) %>% 
-      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Non-Hispanic Black') %>%
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Black Non-Hispanic') %>%
       summarise(average = mean(Deaths)) %>%
       arrange(desc(average)) %>%
       select(Race.Ethnicity, Leading.Cause, average) 
@@ -392,17 +414,17 @@ nycCauses_Deaths %>%
     ## # Groups:   year, Race.Ethnicity [1]
     ##     year Race.Ethnicity     Leading.Cause                                                             average
     ##    <int> <fct>              <fct>                                                                       <dbl>
-    ##  1  2019 Non-Hispanic Black Diseases of Heart (I00-I09, I11, I13, I20-I51)                               2483
-    ##  2  2019 Non-Hispanic Black Malignant Neoplasms (Cancer: C00-C97)                                        1753
-    ##  3  2019 Non-Hispanic Black All Other Causes                                                             1578
-    ##  4  2019 Non-Hispanic Black Diabetes Mellitus (E10-E14)                                                   383
-    ##  5  2019 Non-Hispanic Black Cerebrovascular Disease (Stroke: I60-I69)                                     316
-    ##  6  2019 Non-Hispanic Black Essential Hypertension and Renal Diseases (I10, I12)                          290
-    ##  7  2019 Non-Hispanic Black Chronic Lower Respiratory Diseases (J40-J47)                                  242
-    ##  8  2019 Non-Hispanic Black Influenza (Flu) and Pneumonia (J09-J18)                                       227
-    ##  9  2019 Non-Hispanic Black Alzheimer's Disease (G30)                                                     171
-    ## 10  2019 Non-Hispanic Black Mental and Behavioral Disorders due to Accidental Poisoning and Other Ps~     120
-    ## 11  2019 Non-Hispanic Black Nephritis, Nephrotic Syndrome and Nephrisis (N00-N07, N17-N19, N25-N27)        96
+    ##  1  2019 Black Non-Hispanic Diseases of Heart (I00-I09, I11, I13, I20-I51)                               2483
+    ##  2  2019 Black Non-Hispanic Malignant Neoplasms (Cancer: C00-C97)                                        1753
+    ##  3  2019 Black Non-Hispanic All Other Causes                                                             1578
+    ##  4  2019 Black Non-Hispanic Diabetes Mellitus (E10-E14)                                                   383
+    ##  5  2019 Black Non-Hispanic Cerebrovascular Disease (Stroke: I60-I69)                                     316
+    ##  6  2019 Black Non-Hispanic Essential Hypertension and Renal Diseases (I10, I12)                          290
+    ##  7  2019 Black Non-Hispanic Chronic Lower Respiratory Diseases (J40-J47)                                  242
+    ##  8  2019 Black Non-Hispanic Influenza (Flu) and Pneumonia (J09-J18)                                       227
+    ##  9  2019 Black Non-Hispanic Alzheimer's Disease (G30)                                                     171
+    ## 10  2019 Black Non-Hispanic Mental and Behavioral Disorders due to Accidental Poisoning and Other Ps~     120
+    ## 11  2019 Black Non-Hispanic Nephritis, Nephrotic Syndrome and Nephrisis (N00-N07, N17-N19, N25-N27)        96
 
 The top cause of death for Black females in 2019 was Diseases of Heart
 (I00-I09, I11, I13, I20-I51) with an average of 2,483 women dying. The
@@ -412,7 +434,7 @@ cases.
 ``` r
 nycCauses_Deaths %>% 
       group_by(year, Race.Ethnicity,Leading.Cause) %>% 
-      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'Non-Hispanic White') %>%
+      filter(year == 2019 & Sex == "Female" & Race.Ethnicity == 'White Non-Hispanic') %>%
       summarise(average = mean(Deaths)) %>%
       arrange(desc(average)) %>%
       select(Race.Ethnicity, Leading.Cause, average) 
@@ -425,17 +447,17 @@ nycCauses_Deaths %>%
     ## # Groups:   year, Race.Ethnicity [1]
     ##     year Race.Ethnicity     Leading.Cause                                                             average
     ##    <int> <fct>              <fct>                                                                       <dbl>
-    ##  1  2019 Non-Hispanic White Diseases of Heart (I00-I09, I11, I13, I20-I51)                               4001
-    ##  2  2019 Non-Hispanic White Malignant Neoplasms (Cancer: C00-C97)                                        2655
-    ##  3  2019 Non-Hispanic White All Other Causes                                                             2264
-    ##  4  2019 Non-Hispanic White Chronic Lower Respiratory Diseases (J40-J47)                                  480
-    ##  5  2019 Non-Hispanic White Cerebrovascular Disease (Stroke: I60-I69)                                     390
-    ##  6  2019 Non-Hispanic White Alzheimer's Disease (G30)                                                     341
-    ##  7  2019 Non-Hispanic White Influenza (Flu) and Pneumonia (J09-J18)                                       308
-    ##  8  2019 Non-Hispanic White Essential Hypertension and Renal Diseases (I10, I12)                          228
-    ##  9  2019 Non-Hispanic White Diabetes Mellitus (E10-E14)                                                   197
-    ## 10  2019 Non-Hispanic White Accidents Except Drug Poisoning (V01-X39, X43, X45-X59, Y85-Y86)              167
-    ## 11  2019 Non-Hispanic White Mental and Behavioral Disorders due to Accidental Poisoning and Other Ps~     125
+    ##  1  2019 White Non-Hispanic Diseases of Heart (I00-I09, I11, I13, I20-I51)                               4001
+    ##  2  2019 White Non-Hispanic Malignant Neoplasms (Cancer: C00-C97)                                        2655
+    ##  3  2019 White Non-Hispanic All Other Causes                                                             2264
+    ##  4  2019 White Non-Hispanic Chronic Lower Respiratory Diseases (J40-J47)                                  480
+    ##  5  2019 White Non-Hispanic Cerebrovascular Disease (Stroke: I60-I69)                                     390
+    ##  6  2019 White Non-Hispanic Alzheimer's Disease (G30)                                                     341
+    ##  7  2019 White Non-Hispanic Influenza (Flu) and Pneumonia (J09-J18)                                       308
+    ##  8  2019 White Non-Hispanic Essential Hypertension and Renal Diseases (I10, I12)                          228
+    ##  9  2019 White Non-Hispanic Diabetes Mellitus (E10-E14)                                                   197
+    ## 10  2019 White Non-Hispanic Accidents Except Drug Poisoning (V01-X39, X43, X45-X59, Y85-Y86)              167
+    ## 11  2019 White Non-Hispanic Mental and Behavioral Disorders due to Accidental Poisoning and Other Ps~     125
 
 For Non-Hispanic White women, the number one cause is Diseases of Heart
 with average 4,001 deaths. This is followed by Cancer and Chronic Lower
@@ -553,7 +575,7 @@ nycCauses_Deaths %>%
         facet_wrap(~year)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
 
 I have added images of two additional plots that are contained in a file
 named `Tableau_images.doc.` Those plots show heart disease has been
