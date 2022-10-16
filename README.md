@@ -30,8 +30,8 @@ This is not a formal project, so there is not a detailed business task
 (or statement). I will use the data set to explore, complete some
 summary statistics and visualizations.
 
-I whave the following questions. What was the cause of death for women
-in NYC? What about the top 10 causes? Does race change the top cause for
+I have the following questions. What was the cause of death for women in
+NYC? What about the top 10 causes? Does race change the top cause for
 women? Basically, is it different for Black, White, Hispanic, and Asian
 women?
 
@@ -553,15 +553,19 @@ nycCauses_Deaths %>%
         facet_wrap(~year)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-143-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+I have added images of two additional plots that are contained in a file
+named `Tableau_images.doc.` Those plots show heart disease has been
+declining since 2007, but continues to be the number one cause of death
+for men and women.
 
 # Conclusion
 
-This project is still under construction. I need to add additional plots
-and address the formatting. As mentioned, I plan to begin the project
-using python; however this time I will look at the causes of death for
-men. I will also be using the data to complete plots (charts) in
-Tableau. Again, another way to practice.
+As mentioned, I plan to begin the project using python; however this
+time I will look at the causes of death for men. I will also be using
+the data to complete plots (charts) in Tableau. Again, another way to
+practice.
 
 In the meantime, we can see that heart disease has been the leading
 cause of death for women in the NYC area. This is regardless their
