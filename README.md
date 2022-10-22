@@ -348,19 +348,20 @@ heart disease or diabetes?
 
 ``` r
 nycCauses_Deaths %>% 
-  group_by(year, Leading.Cause, Sex) %>% 
+  group_by(year, Leading.Cause, Sex, Race.Ethnicity) %>% 
   summarise(mean = mean(Deaths)) %>%
-  filter(year == 2019 & Sex == "Female" & grepl('Heart|Diabetes', Leading.Cause))
+  filter(year == 2019 & Sex == "Female" & grepl('Heart|Diabetes', Leading.Cause) 
+         & Race.Ethnicity =='Black Non-Hispanic')
 ```
 
-    ## # A tibble: 2 x 4
-    ## # Groups:   year, Leading.Cause [2]
-    ##    year Leading.Cause                                  Sex     mean
-    ##   <int> <fct>                                          <fct>  <dbl>
-    ## 1  2019 Diabetes Mellitus (E10-E14)                    Female  129.
-    ## 2  2019 Diseases of Heart (I00-I09, I11, I13, I20-I51) Female 1266.
+    ## # A tibble: 2 x 5
+    ## # Groups:   year, Leading.Cause, Sex [2]
+    ##    year Leading.Cause                                  Sex    Race.Ethnicity      mean
+    ##   <int> <fct>                                          <fct>  <fct>              <dbl>
+    ## 1  2019 Diabetes Mellitus (E10-E14)                    Female Black Non-Hispanic   383
+    ## 2  2019 Diseases of Heart (I00-I09, I11, I13, I20-I51) Female Black Non-Hispanic  2483
 
-In 2019, on average 129 black women died from diabetes and 1,266 died
+In 2019, on average 383 black women died from diabetes and 2,483 died
 from heart disease.
 
 Question 2 - In 2019, what is the top causes of death for women?
@@ -571,11 +572,10 @@ nycCauses_Deaths %>%
   
        ggplot( aes(x=year, y = Deaths)) + 
         theme(axis.text.x=element_text(angle=50, hjust=1)) +
-        geom_bar(stat = "identity")+
-        facet_wrap(~year)
+        geom_bar(stat = "identity")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
 
 I have added images of two additional plots that are contained in a file
 named `Tableau_images.doc.` Those plots show heart disease has been

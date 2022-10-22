@@ -204,17 +204,19 @@ unique(nycCauses_Deaths[["Race.Ethnicity"]])
 
 Now our data sets seem to be clean.  As mentioned above we will use nycCauses_Deaths and nycCauses_noNA. We will mainly use nycCauses_Deaths, because we were able to maintain the most data.
 
+
 # Analyze
 
 Question 1 - For black women who died in 2019, how many women died from heart disease or diabetes?
 ```{r message=FALSE}
 nycCauses_Deaths %>% 
-  group_by(year, Leading.Cause, Sex) %>% 
+  group_by(year, Leading.Cause, Sex, Race.Ethnicity) %>% 
   summarise(mean = mean(Deaths)) %>%
-  filter(year == 2019 & Sex == "Female" & grepl('Heart|Diabetes', Leading.Cause))
+  filter(year == 2019 & Sex == "Female" & grepl('Heart|Diabetes', Leading.Cause) 
+         & Race.Ethnicity =='Black Non-Hispanic')
   
 ```
-In 2019, on average 129 black women died from diabetes and 1,266 died from heart disease.
+In 2019, on average 383 black women died from diabetes and 2,483 died from heart disease.
 
 
 Question 2 - In 2019, what is the top causes of death for women?
@@ -294,8 +296,8 @@ nycCauses_Deaths %>%
   
        ggplot( aes(x=year, y = Deaths)) + 
         theme(axis.text.x=element_text(angle=50, hjust=1)) +
-        geom_bar(stat = "identity")+
-        facet_wrap(~year)
+        geom_bar(stat = "identity")
+
 ```
 
 I have added images of two additional plots that are contained in a file named `Tableau_images.doc.`  Those plots show heart disease has been declining since 2007, but continues to be the number one cause of death for men and women.
